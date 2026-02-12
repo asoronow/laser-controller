@@ -1,0 +1,53 @@
+# sniff-lldb.txt — lldb commands to capture SoundSwitch USB traffic
+#
+# Usage:
+#   1. Open SoundSwitch, wait for blue LED
+#   2. Get PID: pgrep -f 'SoundSwitch.app/Contents/MacOS/SoundSwitch$'
+#   3. Run: lldb -p <PID> -s scripts/sniff-lldb.txt
+#
+# This sets breakpoints on key functions, logs args, and auto-continues.
+
+# ── D2XX function breakpoints ──
+
+# FT_Write — THE MOST IMPORTANT: shows every USB write with data
+breakpoint set -n FT_Write -G true -C 'expr -- (int)$arg3' -C 'memory read -c (($arg3 < 32) ? $arg3 : 32) $arg2' -C 'continue'
+
+# FT_Open / FT_OpenEx
+breakpoint set -n FT_Open -G true -C 'script print("[D2XX] FT_Open")' -C 'continue'
+breakpoint set -n FT_OpenEx -G true -C 'script print("[D2XX] FT_OpenEx")' -C 'continue'
+
+# Configuration functions
+breakpoint set -n FT_SetVIDPID -G true -C 'script print("[D2XX] FT_SetVIDPID")' -C 'continue'
+breakpoint set -n FT_ResetDevice -G true -C 'script print("[D2XX] FT_ResetDevice")' -C 'continue'
+breakpoint set -n FT_SetBaudRate -G true -C 'script print("[D2XX] FT_SetBaudRate")' -C 'continue'
+breakpoint set -n FT_SetDataCharacteristics -G true -C 'script print("[D2XX] FT_SetDataCharacteristics")' -C 'continue'
+breakpoint set -n FT_SetFlowControl -G true -C 'script print("[D2XX] FT_SetFlowControl")' -C 'continue'
+breakpoint set -n FT_SetTimeouts -G true -C 'script print("[D2XX] FT_SetTimeouts")' -C 'continue'
+breakpoint set -n FT_SetLatencyTimer -G true -C 'script print("[D2XX] FT_SetLatencyTimer")' -C 'continue'
+breakpoint set -n FT_SetUSBParameters -G true -C 'script print("[D2XX] FT_SetUSBParameters")' -C 'continue'
+breakpoint set -n FT_Purge -G true -C 'script print("[D2XX] FT_Purge")' -C 'continue'
+
+# Modem control
+breakpoint set -n FT_SetDtr -G true -C 'script print("[D2XX] FT_SetDtr (DTR HIGH)")' -C 'continue'
+breakpoint set -n FT_ClrDtr -G true -C 'script print("[D2XX] FT_ClrDtr (DTR LOW)")' -C 'continue'
+breakpoint set -n FT_SetRts -G true -C 'script print("[D2XX] FT_SetRts (RTS HIGH)")' -C 'continue'
+breakpoint set -n FT_ClrRts -G true -C 'script print("[D2XX] FT_ClrRts (RTS LOW)")' -C 'continue'
+
+# Break signal
+breakpoint set -n FT_SetBreakOn -G true -C 'script print("[D2XX] FT_SetBreakOn")' -C 'continue'
+breakpoint set -n FT_SetBreakOff -G true -C 'script print("[D2XX] FT_SetBreakOff")' -C 'continue'
+
+# Read/status
+breakpoint set -n FT_Read -G true -C 'script print("[D2XX] FT_Read")' -C 'continue'
+breakpoint set -n FT_GetQueueStatus -G true -C 'script print("[D2XX] FT_GetQueueStatus")' -C 'continue'
+breakpoint set -n FT_Close -G true -C 'script print("[D2XX] FT_Close")' -C 'continue'
+
+# ── libusb functions (bundled inside libftd2xx) ──
+breakpoint set -n libusb_bulk_transfer -G true -C 'script print("[LIBUSB] bulk_transfer")' -C 'continue'
+breakpoint set -n libusb_control_transfer -G true -C 'script print("[LIBUSB] control_transfer")' -C 'continue'
+breakpoint set -n libusb_claim_interface -G true -C 'script print("[LIBUSB] claim_interface")' -C 'continue'
+breakpoint set -n libusb_set_configuration -G true -C 'script print("[LIBUSB] set_configuration")' -C 'continue'
+breakpoint set -n libusb_set_interface_alt_setting -G true -C 'script print("[LIBUSB] set_alt_setting")' -C 'continue'
+
+# Resume the process
+continue

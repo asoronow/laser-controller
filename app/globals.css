@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+:root {
+  /* Surfaces (layered depth) */
+  --surface-0: #141418;
+  --surface-1: #1c1c22;
+  --surface-2: #252530;
+  --surface-3: #2e2e3a;
+
+  /* Text hierarchy */
+  --text-primary: #e8e8f0;
+  --text-secondary: #a8a8be;
+  --text-muted: #78788e;
+
+  /* Borders */
+  --border-default: #35354a;
+  --border-subtle: #2a2a3c;
+  --border-focus: #f472b6;
+
+  /* Pink accent */
+  --accent: #f472b6;
+  --accent-hover: #f9a8d4;
+  --accent-muted: rgba(244, 114, 182, 0.15);
+
+  /* Semantic status */
+  --status-success: #00dda0;
+  --status-error: #ff5566;
+  --status-warning: #ffaa44;
+
+  /* Legacy aliases (backwards compat during migration) */
+  --background: var(--surface-1);
+  --foreground: var(--text-primary);
+  --card: var(--surface-2);
+  --border: var(--border-default);
+  --accent-green: var(--status-success);
+  --accent-red: var(--status-error);
+  --accent-orange: var(--status-warning);
+  --accent-blue: var(--accent);
+}
+
+@theme inline {
+  /* Semantic surface tokens */
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  /* Semantic text tokens */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  /* Accent */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-muted: var(--accent-muted);
+
+  /* Status */
+  --color-success: var(--status-success);
+  --color-error: var(--status-error);
+  --color-warning: var(--status-warning);
+
+  /* Legacy aliases */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-accent-green: var(--accent-green);
+  --color-accent-red: var(--accent-red);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-blue: var(--accent-blue);
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ── Focus styles ── */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Custom range slider ── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 2.75rem; /* 44px touch area */
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-default);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-default);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface-0);
+  margin-top: -8px;
+  transition: box-shadow 0.15s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface-0);
+  transition: box-shadow 0.15s ease;
+}
+
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+
+input[type="range"]:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Toast animation ── */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tourFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

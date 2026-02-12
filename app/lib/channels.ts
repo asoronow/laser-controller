@@ -1,0 +1,425 @@
+export interface ChannelDef {
+  ch: number;
+  key: string;
+  label: string;
+  min: number;
+  max: number;
+  color?: string;
+  presets?: { label: string; range: [number, number] }[];
+  group: string;
+}
+
+// ── U'King ZQ05031 RGB Animation Laser ──
+// Extended DMX Mode (34 channels): Group A CH1-CH17, Group B CH18-CH34
+// 160 total patterns: ~140 beam/graphic (Group 1) + ~20 animation (Group 0)
+// From the laser fixture manual, pages 5-9
+
+export const CHANNELS: ChannelDef[] = [
+  // ── Group A: Core ──
+  {
+    ch: 1,
+    key: "laserOnOff",
+    label: "Laser ON/OFF",
+    min: 0,
+    max: 255,
+    group: "power",
+    presets: [
+      { label: "OFF", range: [0, 0] },
+      { label: "AUTO", range: [1, 99] },
+      { label: "SOUND", range: [100, 199] },
+      { label: "SAVE", range: [200, 254] },
+      { label: "A OFF", range: [255, 255] },
+    ],
+  },
+  {
+    ch: 2,
+    key: "patternSize",
+    label: "Pattern Size",
+    min: 0,
+    max: 255,
+    group: "pattern",
+    presets: [
+      { label: "CROSS", range: [0, 49] },
+      { label: "REENTRY", range: [50, 99] },
+      { label: "BLANK", range: [100, 149] },
+      { label: "ZOOM+BLK", range: [150, 199] },
+      { label: "SAVE", range: [200, 255] },
+    ],
+  },
+  {
+    ch: 3,
+    key: "groupSelect",
+    label: "Group Selection",
+    min: 0,
+    max: 255,
+    group: "pattern",
+    presets: [
+      { label: "BEAMS", range: [0, 223] },
+      { label: "ANIM", range: [244, 255] },
+    ],
+  },
+  {
+    ch: 4,
+    key: "pattern",
+    label: "Pattern Selection",
+    min: 0,
+    max: 255,
+    group: "pattern",
+  },
+
+  // ── Group A: Movement ──
+  {
+    ch: 5,
+    key: "zoom",
+    label: "Pattern Zoom",
+    min: 0,
+    max: 255,
+    group: "movement",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "ZOOM OUT", range: [128, 159] },
+      { label: "ZOOM IN", range: [160, 191] },
+      { label: "IN/OUT", range: [192, 223] },
+      { label: "ROTATE", range: [224, 255] },
+    ],
+  },
+  {
+    ch: 6,
+    key: "rotation",
+    label: "Pattern Rotation",
+    min: 0,
+    max: 255,
+    group: "movement",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "2 CIRC", range: [128, 159] },
+      { label: "1 CIRC", range: [160, 191] },
+      { label: "CW", range: [192, 223] },
+      { label: "CCW", range: [224, 255] },
+    ],
+  },
+  {
+    ch: 7,
+    key: "xMove",
+    label: "Pan",
+    min: 0,
+    max: 255,
+    group: "movement",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "UP", range: [128, 159] },
+      { label: "DOWN", range: [160, 191] },
+      { label: "LEFT", range: [192, 223] },
+      { label: "RIGHT", range: [224, 255] },
+    ],
+  },
+  {
+    ch: 8,
+    key: "yMove",
+    label: "Tilt",
+    min: 0,
+    max: 255,
+    group: "movement",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "RIGHT", range: [128, 159] },
+      { label: "LEFT", range: [160, 191] },
+      { label: "DOWN", range: [192, 223] },
+      { label: "UP", range: [224, 255] },
+    ],
+  },
+
+  // ── Group A: Zoom / Distortion ──
+  {
+    ch: 9,
+    key: "xZoom",
+    label: "X Zoom/Distort",
+    min: 0,
+    max: 255,
+    group: "distortion",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "UP DIST", range: [128, 159] },
+      { label: "DN DIST", range: [160, 191] },
+      { label: "IN/OUT", range: [192, 223] },
+      { label: "ROT ZOOM", range: [224, 255] },
+    ],
+  },
+  {
+    ch: 10,
+    key: "yZoom",
+    label: "Y Zoom/Distort",
+    min: 0,
+    max: 255,
+    group: "distortion",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "R DIST", range: [128, 159] },
+      { label: "L DIST", range: [160, 191] },
+      { label: "IN/OUT", range: [192, 223] },
+      { label: "ROT ZOOM", range: [224, 255] },
+    ],
+  },
+
+  // ── Group A: Color ──
+  {
+    ch: 11,
+    key: "fixedColor",
+    label: "Fixed Color",
+    min: 0,
+    max: 255,
+    group: "color",
+    presets: [
+      { label: "ORIGINAL", range: [0, 0] },
+    ],
+  },
+  {
+    ch: 12,
+    key: "colorChange",
+    label: "Color Change",
+    min: 0,
+    max: 255,
+    group: "color",
+    presets: [
+      { label: "ORIGINAL", range: [0, 7] },
+      { label: "RED", range: [8, 15] },
+      { label: "YELLOW", range: [16, 23] },
+      { label: "GREEN", range: [24, 31] },
+      { label: "CYAN", range: [32, 39] },
+      { label: "BLUE", range: [40, 47] },
+      { label: "PINK", range: [48, 55] },
+      { label: "WHITE", range: [56, 63] },
+      { label: "RGB", range: [64, 95] },
+      { label: "YCP", range: [96, 127] },
+      { label: "RGBYCPW", range: [128, 159] },
+      { label: "7 COLOR", range: [160, 191] },
+      { label: "SINE", range: [192, 223] },
+      { label: "COSINE", range: [224, 255] },
+    ],
+  },
+
+  // ── Group A: Effects ──
+  {
+    ch: 13,
+    key: "dots",
+    label: "Dots",
+    min: 0,
+    max: 255,
+    group: "effects",
+    presets: [
+      { label: "ORIGINAL", range: [0, 63] },
+      { label: "NO DOTS", range: [64, 127] },
+      { label: "SWEEP", range: [128, 159] },
+      { label: "SAVE", range: [160, 255] },
+    ],
+  },
+  {
+    ch: 14,
+    key: "drawing1",
+    label: "Drawing",
+    min: 0,
+    max: 255,
+    group: "effects",
+  },
+  {
+    ch: 15,
+    key: "drawing2",
+    label: "Drawing 2",
+    min: 0,
+    max: 255,
+    group: "effects",
+    presets: [
+      { label: "SINE", range: [0, 63] },
+      { label: "COSINE", range: [64, 127] },
+      { label: "DYN A", range: [128, 159] },
+      { label: "DYN B", range: [160, 191] },
+      { label: "DYN C", range: [192, 223] },
+      { label: "DYN D", range: [224, 255] },
+    ],
+  },
+  {
+    ch: 16,
+    key: "twist",
+    label: "Twist Pattern",
+    min: 0,
+    max: 255,
+    group: "effects",
+  },
+  {
+    ch: 17,
+    key: "grating",
+    label: "Grating",
+    min: 0,
+    max: 255,
+    group: "effects",
+  },
+
+  // ── Group B: Core ──
+  {
+    ch: 18,
+    key: "laserOnOffB",
+    label: "B: Laser ON/OFF",
+    min: 0,
+    max: 255,
+    group: "groupB",
+    presets: [
+      { label: "ALL OFF", range: [0, 0] },
+      { label: "AUTO", range: [1, 99] },
+      { label: "SOUND", range: [100, 199] },
+      { label: "SAVE", range: [200, 254] },
+      { label: "A OFF B ON", range: [255, 255] },
+    ],
+  },
+  {
+    ch: 19,
+    key: "boundaryB",
+    label: "B: Boundary",
+    min: 0,
+    max: 255,
+    group: "groupB",
+    presets: [
+      { label: "CROSS", range: [0, 49] },
+      { label: "REENTRY", range: [50, 99] },
+      { label: "BLANK", range: [100, 149] },
+      { label: "SAVE", range: [150, 255] },
+    ],
+  },
+  {
+    ch: 20,
+    key: "nofuncB",
+    label: "B: (No Function)",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 21,
+    key: "patternB",
+    label: "B: Pattern",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 22,
+    key: "zoomB",
+    label: "B: Zoom",
+    min: 0,
+    max: 255,
+    group: "groupB",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "ZOOM OUT", range: [128, 159] },
+      { label: "ZOOM IN", range: [160, 191] },
+      { label: "IN/OUT", range: [192, 223] },
+      { label: "ROTATE", range: [224, 255] },
+    ],
+  },
+  {
+    ch: 23,
+    key: "rotationB",
+    label: "B: Rotation",
+    min: 0,
+    max: 255,
+    group: "groupB",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "2 CIRC", range: [128, 159] },
+      { label: "1 CIRC", range: [160, 191] },
+      { label: "CW", range: [192, 223] },
+      { label: "CCW", range: [224, 255] },
+    ],
+  },
+  {
+    ch: 24,
+    key: "xMoveB",
+    label: "B: X Moving",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 25,
+    key: "yMoveB",
+    label: "B: Y Moving",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 26,
+    key: "xZoomB",
+    label: "B: X Zoom",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 27,
+    key: "yZoomB",
+    label: "B: Y Zoom",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 28,
+    key: "fixedColorB",
+    label: "B: Fixed Color",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 29,
+    key: "colorChangeB",
+    label: "B: Color Change",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 30,
+    key: "dotsB",
+    label: "B: Dots",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 31,
+    key: "drawParamB",
+    label: "B: Draw Param",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 32,
+    key: "drawingB",
+    label: "B: Drawing",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 33,
+    key: "twistB",
+    label: "B: Twist",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+  {
+    ch: 34,
+    key: "gratingB",
+    label: "B: Grating",
+    min: 0,
+    max: 255,
+    group: "groupB",
+  },
+];
+
+export const CHANNEL_BY_KEY: Record<string, ChannelDef> = Object.fromEntries(
+  CHANNELS.map((c) => [c.key, c])
+);
