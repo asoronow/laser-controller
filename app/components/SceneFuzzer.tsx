@@ -45,6 +45,8 @@ export default function SceneFuzzer({
   const [config, setConfig] = useState<FuzzConfig>(DEFAULT_FUZZ_CONFIG);
   const [lastScene, setLastScene] = useState<Scene | null>(null);
   const [history, setHistory] = useState<Scene[]>([]);
+  const [namingScene, setNamingScene] = useState<Scene | null>(null);
+  const [nameInput, setNameInput] = useState("");
 
   const historyRef = useRef(history);
   historyRef.current = history;
@@ -76,12 +78,22 @@ export default function SceneFuzzer({
     [onApplyScene]
   );
 
-  const handleSave = useCallback(
-    (scene: Scene) => {
-      onSaveScene(scene.name, scene.values);
-    },
-    [onSaveScene]
-  );
+  const handleSave = useCallback((scene: Scene) => {
+    setNamingScene(scene);
+    setNameInput(scene.name);
+  }, []);
+
+  const confirmSave = useCallback(() => {
+    if (!namingScene || !nameInput.trim()) return;
+    onSaveScene(nameInput.trim(), namingScene.values);
+    setNamingScene(null);
+    setNameInput("");
+  }, [namingScene, nameInput, onSaveScene]);
+
+  const cancelNaming = useCallback(() => {
+    setNamingScene(null);
+    setNameInput("");
+  }, []);
 
   return (
     <div className="space-y-5">
@@ -113,6 +125,38 @@ export default function SceneFuzzer({
           </>
         )}
       </div>
+
+      {/* Naming prompt */}
+      {namingScene && (
+        <div className="flex gap-2">
+          <input
+            autoFocus
+            type="text"
+            placeholder="Scene name..."
+            value={nameInput}
+            aria-label="Scene name"
+            onChange={(e) => setNameInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") confirmSave();
+              if (e.key === "Escape") cancelNaming();
+            }}
+            className="min-h-11 flex-1 rounded-lg border border-border bg-surface-1 px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+          />
+          <button
+            onClick={confirmSave}
+            disabled={!nameInput.trim()}
+            className="min-h-11 rounded-lg bg-success/20 px-4 py-2 text-sm font-medium text-success transition-colors hover:bg-success/30 disabled:opacity-30"
+          >
+            Save
+          </button>
+          <button
+            onClick={cancelNaming}
+            className="min-h-11 rounded-lg px-3 py-2 text-sm text-text-muted transition-colors hover:text-text-secondary"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {/* Configuration */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

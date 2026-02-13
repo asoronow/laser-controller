@@ -24,6 +24,7 @@ function defaultChannels(): Record<string, number> {
   vals.laserOnOff = 100;
   vals.groupSelect = 0;
   vals.zoom = 64;
+  vals.patternSize = 30; // CROSS mode, visible size
   return vals;
 }
 
@@ -46,6 +47,8 @@ export default function SimulatePage() {
   const [sending, setSending] = useState(false);
   const [showActive, setShowActive] = useState(false);
   const [savedScenesList, setSavedScenesList] = useState<Scene[]>([]);
+  const [channelNaming, setChannelNaming] = useState(false);
+  const [channelNameInput, setChannelNameInput] = useState("");
   const sendTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Setup tab state
@@ -100,6 +103,7 @@ export default function SimulatePage() {
       next.laserOnOff = 100;
       next.groupSelect = 0;
       next.zoom = 64;
+      next.patternSize = 30; // CROSS mode, visible size
       for (const [k, v] of Object.entries(scene.values)) {
         next[k] = v;
       }
@@ -343,6 +347,61 @@ export default function SimulatePage() {
 
       {tab === "channels" && (
         <div role="tabpanel" id="panel-channels" aria-labelledby="tab-channels" tabIndex={0}>
+          <div className="mb-3 flex items-center gap-2">
+            {!channelNaming ? (
+              <button
+                onClick={() => setChannelNaming(true)}
+                disabled={showActive}
+                className="min-h-11 rounded-lg border border-success/50 px-4 py-2 text-sm font-medium text-success transition-colors hover:bg-success/10 disabled:opacity-30"
+              >
+                + Save Current
+              </button>
+            ) : (
+              <div className="flex flex-1 gap-2">
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Scene name..."
+                  value={channelNameInput}
+                  aria-label="New scene name"
+                  onChange={(e) => setChannelNameInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && channelNameInput.trim()) {
+                      handleSaveScene(channelNameInput.trim(), channels);
+                      setChannelNaming(false);
+                      setChannelNameInput("");
+                    }
+                    if (e.key === "Escape") {
+                      setChannelNaming(false);
+                      setChannelNameInput("");
+                    }
+                  }}
+                  className="min-h-11 flex-1 rounded-lg border border-border bg-surface-1 px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+                />
+                <button
+                  onClick={() => {
+                    if (!channelNameInput.trim()) return;
+                    handleSaveScene(channelNameInput.trim(), channels);
+                    setChannelNaming(false);
+                    setChannelNameInput("");
+                  }}
+                  disabled={!channelNameInput.trim()}
+                  className="min-h-11 rounded-lg bg-success/20 px-4 py-2 text-sm font-medium text-success transition-colors hover:bg-success/30 disabled:opacity-30"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => {
+                    setChannelNaming(false);
+                    setChannelNameInput("");
+                  }}
+                  className="min-h-11 rounded-lg px-3 py-2 text-sm text-text-muted transition-colors hover:text-text-secondary"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
           <ChannelGrid
             values={channels}
             onChange={handleChange}

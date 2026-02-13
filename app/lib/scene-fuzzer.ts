@@ -117,9 +117,18 @@ let fuzzCounter = 0;
 export function generateRandomScene(config: FuzzConfig): Scene {
   const { patternPool, effectIntensity, movementIntensity, colorMode } = config;
 
-  // Pick pattern from pool
+  // Pick pattern from pool (weighted by range size for variety)
   const ranges = PATTERN_POOLS[patternPool];
-  const range = pick(ranges);
+  const totalPatterns = ranges.reduce((s, r) => s + (r.max - r.min + 1), 0);
+  let roll = Math.random() * totalPatterns;
+  let range = ranges[0];
+  for (const r of ranges) {
+    roll -= r.max - r.min + 1;
+    if (roll <= 0) {
+      range = r;
+      break;
+    }
+  }
   const pattern = randInt(range.min, range.max);
   const groupSelect = range.groupSelect;
 
@@ -187,9 +196,9 @@ export function generateRandomScene(config: FuzzConfig): Scene {
     values.dots = 128 + randInt(0, 31); // SWEEP mode
   }
 
-  // Pattern size — usually leave at default (show mode controls this)
+  // Pattern size — stay in CROSS range (0-49); >=50 enters REENTRY/BLANK
   if (Math.random() < 0.3) {
-    values.patternSize = randInt(20, 80);
+    values.patternSize = randInt(10, 49);
   }
 
   fuzzCounter++;
@@ -211,23 +220,26 @@ export function mutateScene(base: Scene, strength: number = 0.3): Scene {
     values.pattern = Math.max(0, Math.min(139, current + delta));
   }
 
-  // Zoom: nudge within current mode or small chance to change mode
+  // Zoom: nudge within current mode boundary or small chance to change mode
   if (values.zoom !== undefined && Math.random() < strength) {
     if (Math.random() < 0.2) {
       // Change mode entirely
       values.zoom = weightedPick(ZOOM_MODES);
     } else {
-      // Nudge within current range
-      values.zoom = Math.max(0, Math.min(255, values.zoom + randInt(-15, 15)));
+      // Nudge within current mode boundaries (STATIC 0-127, OUT 128-159, IN 160-191, IN/OUT 192-223)
+      const z = values.zoom;
+      const [lo, hi] =
+        z < 128 ? [0, 127] : z < 160 ? [128, 159] : z < 192 ? [160, 191] : z < 224 ? [192, 223] : [224, 255];
+      values.zoom = Math.max(lo, Math.min(hi, z + randInt(-15, 15)));
     }
   }
 
-  // Rotation: nudge
+  // Rotation: nudge within current mode boundary
   if (values.rotation !== undefined && Math.random() < strength * 0.5) {
-    values.rotation = Math.max(
-      0,
-      Math.min(255, values.rotation + randInt(-10, 10))
-    );
+    const r = values.rotation;
+    const [lo, hi] =
+      r < 128 ? [0, 127] : r < 160 ? [128, 159] : r < 192 ? [160, 191] : r < 224 ? [192, 223] : [224, 255];
+    values.rotation = Math.max(lo, Math.min(hi, r + randInt(-10, 10)));
   }
 
   // Color: chance to shift
@@ -267,14 +279,18 @@ export function mutateScene(base: Scene, strength: number = 0.3): Scene {
     }
   }
 
-  // Movement: chance to add/remove/nudge
+  // Movement: chance to add/remove/nudge within mode boundaries
   for (const key of ["xMove", "yMove"]) {
     if (Math.random() < strength * 0.2) {
       if (values[key] !== undefined) {
         if (Math.random() < 0.3) {
           delete values[key]; // remove movement
         } else {
-          values[key] = Math.max(0, Math.min(255, values[key] + randInt(-20, 20)));
+          // Nudge within current mode boundary (32-value blocks starting at 128)
+          const v = values[key];
+          const [lo, hi] =
+            v < 128 ? [0, 127] : v < 160 ? [128, 159] : v < 192 ? [160, 191] : v < 224 ? [192, 223] : [224, 255];
+          values[key] = Math.max(lo, Math.min(hi, v + randInt(-10, 10)));
         }
       } else {
         const mode = pick([128, 160, 192, 224]);

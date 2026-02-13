@@ -16,6 +16,8 @@ export interface ShowEffectsConfig {
   style: ShowStyle;
   colorLock: boolean;
   gratingEnabled: boolean;
+  attack: number; // 0-1: 0 = instant snap (punchy), 1 = slow fade in (smooth swell)
+  release: number; // 0-1: 0 = instant decay (staccato), 1 = slow decay (lingering)
 }
 
 export interface AudioState {
@@ -51,6 +53,7 @@ export interface ShowState {
   beatsSinceScene: number; // beats since last scene change
   lastBassEnergy: number; // previous frame's bass for drop detection
   highEnergyStreak: number; // consecutive high-energy frames
+  lowEnergyFrames: number; // consecutive frames with bass < 0.1 (for breakdown detection)
   gratingBeatCounter: number; // for beat-synced grating toggling
   beatPhase: number; // accumulated beat-synced phase (advances on beats, not clock)
   lastBeatTimeMs: number; // timestamp of most recent beat
@@ -67,6 +70,7 @@ export function createShowState(): ShowState {
     beatsSinceScene: 0,
     lastBassEnergy: 0,
     highEnergyStreak: 0,
+    lowEnergyFrames: 0,
     gratingBeatCounter: 0,
     beatPhase: 0,
     lastBeatTimeMs: 0,
@@ -138,18 +142,23 @@ export function shouldAdvanceScene(
 export function onShowBeat(
   state: ShowState,
   energy: number,
-  relativeStrength: number
+  relativeStrength: number,
+  attack: number = 0,
+  release: number = 0.5
 ): void {
-  // Punch snaps to beat strength (strong beats punch harder)
-  state.punchLevel = Math.min(1, energy * 2.5);
+  // Attack scales the punch snap: 0 = full snap (punchy), 1 = reduced snap (smooth)
+  const snapScale = 1 - attack * 0.7; // 1.0 down to 0.3
+  state.punchLevel = Math.min(1, energy * 2.5 * snapScale);
 
-  // Variable decay rate based on beat classification
+  // Release controls base decay rate: 0 = fast (0.75), 1 = slow (0.97)
+  const baseDecay = 0.75 + release * 0.22;
+  // Beat strength still modifies the decay rate
   if (relativeStrength > 1.3) {
-    state.punchDecayRate = 0.93; // strong: slow release, sustains punch
+    state.punchDecayRate = Math.min(0.97, baseDecay + 0.05); // strong: slower
   } else if (relativeStrength < 0.7) {
-    state.punchDecayRate = 0.80; // weak: fast release, brief accent
+    state.punchDecayRate = Math.max(0.70, baseDecay - 0.08); // weak: faster
   } else {
-    state.punchDecayRate = 0.88; // normal
+    state.punchDecayRate = baseDecay; // normal
   }
 
   // Advance beat-synced phase — increment varies with energy
@@ -200,18 +209,25 @@ export function computeEffects(
   state.punchLevel *= Math.pow(state.punchDecayRate, bpmFactor);
   if (state.punchLevel < 0.01) state.punchLevel = 0;
 
-  // ── Track energy streaks for drop detection ──
+  // ── Track energy streaks ──
   if (bassEnergy > 0.35) {
-    state.highEnergyStreak = Math.min(120, state.highEnergyStreak + 1); // cap at 2s
+    state.highEnergyStreak = Math.min(120, state.highEnergyStreak + 1);
   } else {
-    state.highEnergyStreak = Math.max(0, state.highEnergyStreak - 2); // decay faster
+    state.highEnergyStreak = Math.max(0, state.highEnergyStreak - 2);
+  }
+
+  // ── Track sustained silence for breakdown detection ──
+  if (bassEnergy < 0.1) {
+    state.lowEnergyFrames++;
+  } else {
+    state.lowEnergyFrames = 0;
   }
 
   // ── Derived values ──
   const punch = state.punchLevel;
   const mom = state.momentum;
-  const isBreakdown =
-    state.highEnergyStreak === 0 && mom > 0.3 && bassEnergy < 0.1;
+  // Breakdown requires ~1.5s (90 frames) of sustained silence, not just a brief dip
+  const isBreakdown = state.lowEnergyFrames > 90 && mom > 0.2;
 
   // ── Beat-synced phases with slow clock fallback ──
   // If no beat for >2s, advance phase slowly at estimated BPM rate
@@ -225,23 +241,26 @@ export function computeEffects(
   const phase2 = state.beatPhase * PHI;
   const phase3 = state.beatPhase * 0.7;
 
-  // ── BREAKDOWN: strip effects during energy void ──
+  // ── BREAKDOWN: gentle ambient during sustained energy void ──
   if (isBreakdown) {
-    overrides.zoom = 80; // static, pulled back
+    overrides.zoom = 80; // static, medium
+    overrides.patternSize = 30; // guarantee visible pattern size
+    // Slow drift within 2 CIRC mode (128-159)
     overrides.rotation =
-      128 + Math.round(Math.sin(phase1 * 0.3) * 15); // slow drift
-    overrides.xMove = 64;
-    overrides.yMove = 64;
+      128 + Math.round(Math.abs(Math.sin(phase1 * 0.3)) * 31);
+    // Slow figure-8 drift instead of dead center
+    overrides.xMove = 64 + Math.round(Math.sin(phase1 * 0.15) * 20);
+    overrides.yMove = 64 + Math.round(Math.cos(phase1 * 0.11) * 20);
     state.lastBassEnergy = bassEnergy;
     return overrides;
   }
 
   // ── Pattern Size (CH2): scales visual footprint with energy ──
+  // Clamped to 0-49 (CROSS range) — values >=50 enter REENTRY/BLANK modes
   if (punch > 0.3) {
-    overrides.patternSize = 50 + Math.round(punch * 49); // reentry: expanding
+    overrides.patternSize = Math.round(punch * 49); // 0-49
   } else {
-    const sizeBase = Math.round((0.3 + mom * 0.7) * 49); // 15-49 cross range
-    overrides.patternSize = sizeBase;
+    overrides.patternSize = Math.round((0.3 + mom * 0.7) * 49); // 15-49
   }
 
   // ── Zoom (CH5): always responds to momentum, punchy snaps on beats ──
@@ -249,7 +268,7 @@ export function computeEffects(
   const bassZoom = bassEnergy * intensity * mom;
   const zoomDrive = Math.max(punchZoom, bassZoom);
   if (zoomDrive < 0.08) {
-    overrides.zoom = 30 + Math.round(mom * 60); // 30-90 static range
+    overrides.zoom = 55 + Math.round(mom * 45); // 55-100 static range
   } else if (punch > bassZoom) {
     overrides.zoom = 160 + Math.round(punchZoom * 31); // zoom IN, punchy snap
   } else {
@@ -268,7 +287,7 @@ export function computeEffects(
   // ── X Movement / Pan (CH7): style + momentum-scaled ──
   const moveAmp = (0.2 + mom * 0.8) * intensity;
   if (style === "pulse") {
-    const moveSnap = punch * 50 * intensity;
+    const moveSnap = Math.min(punch * 50 * intensity, 31); // clamp to mode width
     if (moveSnap > 5) {
       const moveDir = Math.sin(phase2 * 1.7) > 0 ? 128 : 192;
       overrides.xMove = moveDir + Math.round(moveSnap);
@@ -288,7 +307,7 @@ export function computeEffects(
 
   // ── Y Movement / Tilt (CH8): offset from X for circular/lissajous paths ──
   if (style === "pulse") {
-    const moveSnap = punch * 50 * intensity;
+    const moveSnap = Math.min(punch * 50 * intensity, 31); // clamp to mode width
     if (moveSnap > 5) {
       const moveDir = Math.cos(phase2 * 1.7) > 0 ? 128 : 192;
       overrides.yMove = moveDir + Math.round(moveSnap);
@@ -306,11 +325,11 @@ export function computeEffects(
     overrides.yMove = 128 + Math.round(chaos * 60 * moveAmp);
   }
 
-  // Clamp movement to valid DMX range
+  // Clamp movement to dynamic range (128-255) — below 128 is STATIC (movement stops)
   if (overrides.xMove !== undefined)
-    overrides.xMove = Math.max(0, Math.min(255, overrides.xMove));
+    overrides.xMove = Math.max(128, Math.min(255, overrides.xMove));
   if (overrides.yMove !== undefined)
-    overrides.yMove = Math.max(0, Math.min(255, overrides.yMove));
+    overrides.yMove = Math.max(128, Math.min(255, overrides.yMove));
 
   // ── X Distortion (CH9): treble + punch warp ──
   const distDrive = Math.max(trebleEnergy, punch * 0.6) * intensity;
