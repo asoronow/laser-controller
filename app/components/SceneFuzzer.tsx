@@ -20,13 +20,9 @@ interface SceneFuzzerProps {
 
 const POOL_OPTIONS: { label: string; value: PatternPool }[] = [
   { label: "All", value: "all" },
-  { label: "Geometry", value: "geometry" },
-  { label: "Stars", value: "stars" },
-  { label: "Waves", value: "waves" },
-  { label: "Concentric", value: "concentric" },
-  { label: "Dots", value: "dots" },
-  { label: "Compound", value: "compound" },
-  { label: "Novelty", value: "novelty" },
+  { label: "Beams 0-84", value: "beams-low" },
+  { label: "Beams 85-169", value: "beams-mid" },
+  { label: "Beams 170-255", value: "beams-high" },
   { label: "Animations", value: "animations" },
 ];
 

@@ -4,11 +4,12 @@ export interface Scene {
   values: Record<string, number>;
 }
 
-// Scene presets for U'King ZQ05031
-// Channel names match SoundSwitch profile:
-//   laserOnOff, patternSize, groupSelect, pattern, zoom, rotation,
-//   xMove (Pan), yMove (Tilt), xZoom, yZoom, fixedColor, colorChange,
+// Scene presets for U'King ZQ05031 (34CH extended mode)
+// Channel keys: laserOnOff, boundary, groupSelect, pattern, zoom, rotation,
+//   xMove, yMove, xZoom, yZoom, fixedColor, colorChange,
 //   dots, drawing1, drawing2, twist, grating
+// NOTE: Pattern numbers are not named in the manual. Names below are
+// based on observed output and may not match across firmware versions.
 
 export const SCENES: Scene[] = [
   {
@@ -17,94 +18,94 @@ export const SCENES: Scene[] = [
     values: {
       laserOnOff: 100,      // Sound active (confirmed working)
       groupSelect: 255,     // Group 0 (animations)
-      pattern: 28,          // Pattern 28
+      pattern: 28,
       fixedColor: 152,      // Color change per dot
       drawing2: 217,        // Dynamic C effects
     },
   },
   {
-    name: "CIRCLE RED",
-    description: "Red circle, slow rotation",
+    name: "PRESET A",
+    description: "Pattern #0, red, slow CW rotation",
     values: {
-      laserOnOff: 100,      // Sound active (like SoundSwitch)
+      laserOnOff: 100,      // Sound active
       groupSelect: 0,       // Group 1 (beams)
-      pattern: 0,           // Circle
+      pattern: 0,
       zoom: 80,             // Static, large
       rotation: 200,        // CW slow
       colorChange: 8,       // Red
     },
   },
   {
-    name: "STAR BURST",
-    description: "Fan beams with 7-color cycling",
+    name: "PRESET B",
+    description: "Pattern #24, 7-color cycling, CW rotation",
     values: {
       laserOnOff: 100,      // Sound active
       groupSelect: 0,       // Group 1
-      pattern: 24,          // Fan beams
+      pattern: 24,
       zoom: 100,            // Static, full size
       rotation: 210,        // CW medium
       colorChange: 160,     // 7 color cycle
     },
   },
   {
-    name: "LISSAJOUS",
-    description: "Lissajous curves, dynamic zoom",
+    name: "PRESET C",
+    description: "Pattern #29, dynamic zoom, X/Y movement, cyan",
     values: {
       laserOnOff: 100,      // Sound active
       groupSelect: 0,       // Group 1
-      pattern: 29,          // Lissajous 2:3
+      pattern: 29,
       zoom: 200,            // Dynamic zoom IN/OUT
       rotation: 195,        // CW slow
-      xMove: 145,           // Pan wave
-      yMove: 175,           // Tilt wave
+      xMove: 145,           // Dynamic UP wave
+      yMove: 175,           // Dynamic LEFT wave
       colorChange: 32,      // Cyan
     },
   },
   {
-    name: "TUNNEL",
-    description: "Concentric circles, zoom pulsing",
+    name: "PRESET D",
+    description: "Pattern #60, zoom pulsing, X/Y distortion, blue",
     values: {
       laserOnOff: 100,      // Sound active
       groupSelect: 0,       // Group 1
-      pattern: 60,          // Concentric circles
+      pattern: 60,
       zoom: 200,            // Dynamic IN/OUT
       rotation: 225,        // CCW slow
-      xZoom: 200,           // X distortion
-      yZoom: 200,           // Y distortion
+      xZoom: 200,           // X distortion IN/OUT
+      yZoom: 200,           // Y distortion IN/OUT
       colorChange: 40,      // Blue
     },
   },
   {
     name: "GRATING",
-    description: "Star through grating grid",
+    description: "Pattern #20, grating group 4, green",
     values: {
       laserOnOff: 100,      // Sound active
       groupSelect: 0,       // Group 1
-      pattern: 20,          // 5-point star
+      pattern: 20,
       zoom: 64,             // Static, mid
       rotation: 200,        // CW
-      grating: 60,          // Grating group 3
+      grating: 60,          // Grating group 4 (60-79)
       colorChange: 24,      // Green
     },
   },
   {
-    name: "HEART",
-    description: "Heart shape, color cycling",
+    name: "PRESET E",
+    description: "Pattern #33, sine chasing color",
     values: {
       laserOnOff: 100,      // Sound active
       groupSelect: 0,       // Group 1
-      pattern: 33,          // Heart
+      pattern: 33,
       zoom: 90,             // Static, large
       colorChange: 192,     // Sine chasing color
     },
   },
   {
     name: "ANIMATION",
-    description: "Morphing animated patterns",
+    description: "Group 0, pattern #50, 7-color cycle",
     values: {
       laserOnOff: 100,      // Sound active
       groupSelect: 250,     // Group 0 (animations)
-      pattern: 50,          // Animation pattern
+      pattern: 50,
       zoom: 90,             // Static, large
       colorChange: 160,     // 7 color cycle
     },

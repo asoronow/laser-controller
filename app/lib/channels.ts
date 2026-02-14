@@ -33,8 +33,8 @@ export const CHANNELS: ChannelDef[] = [
   },
   {
     ch: 2,
-    key: "patternSize",
-    label: "Pattern Size",
+    key: "boundary",
+    label: "Out of Bounds / Size",
     min: 0,
     max: 255,
     group: "pattern",
@@ -101,7 +101,7 @@ export const CHANNELS: ChannelDef[] = [
   {
     ch: 7,
     key: "xMove",
-    label: "Pan",
+    label: "X Moving",
     min: 0,
     max: 255,
     group: "movement",
@@ -116,7 +116,7 @@ export const CHANNELS: ChannelDef[] = [
   {
     ch: 8,
     key: "yMove",
-    label: "Tilt",
+    label: "Y Moving",
     min: 0,
     max: 255,
     group: "movement",
@@ -171,6 +171,7 @@ export const CHANNELS: ChannelDef[] = [
     group: "color",
     presets: [
       { label: "ORIGINAL", range: [0, 0] },
+      { label: "COLOR/DOT", range: [1, 255] },
     ],
   },
   {
@@ -252,6 +253,21 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "effects",
+    presets: [
+      { label: "GROUP 1", range: [0, 19] },
+      { label: "GROUP 2", range: [20, 39] },
+      { label: "GROUP 3", range: [40, 59] },
+      { label: "GROUP 4", range: [60, 79] },
+      { label: "GROUP 5", range: [80, 99] },
+      { label: "GROUP 6", range: [100, 119] },
+      { label: "GROUP 7", range: [120, 139] },
+      { label: "GROUP 8", range: [140, 159] },
+      { label: "GROUP 9", range: [160, 179] },
+      { label: "GROUP 10", range: [180, 199] },
+      { label: "GROUP 11", range: [200, 219] },
+      { label: "GROUP 12", range: [220, 239] },
+      { label: "GROUP 13", range: [240, 255] },
+    ],
   },
 
   // ── Group B: Core ──
@@ -337,6 +353,13 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "UP", range: [128, 159] },
+      { label: "DOWN", range: [160, 191] },
+      { label: "LEFT", range: [192, 223] },
+      { label: "RIGHT", range: [224, 255] },
+    ],
   },
   {
     ch: 25,
@@ -345,6 +368,13 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "RIGHT", range: [128, 159] },
+      { label: "LEFT", range: [160, 191] },
+      { label: "DOWN", range: [192, 223] },
+      { label: "UP", range: [224, 255] },
+    ],
   },
   {
     ch: 26,
@@ -353,6 +383,13 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "UP DIST", range: [128, 159] },
+      { label: "DN DIST", range: [160, 191] },
+      { label: "IN/OUT", range: [192, 223] },
+      { label: "ROT ZOOM", range: [224, 255] },
+    ],
   },
   {
     ch: 27,
@@ -361,6 +398,13 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "STATIC", range: [0, 127] },
+      { label: "R DIST", range: [128, 159] },
+      { label: "L DIST", range: [160, 191] },
+      { label: "IN/OUT", range: [192, 223] },
+      { label: "ROT ZOOM", range: [224, 255] },
+    ],
   },
   {
     ch: 28,
@@ -369,6 +413,10 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "ORIGINAL", range: [0, 0] },
+      { label: "COLOR/DOT", range: [1, 255] },
+    ],
   },
   {
     ch: 29,
@@ -377,6 +425,22 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "ORIGINAL", range: [0, 7] },
+      { label: "RED", range: [8, 15] },
+      { label: "YELLOW", range: [16, 23] },
+      { label: "GREEN", range: [24, 31] },
+      { label: "CYAN", range: [32, 39] },
+      { label: "BLUE", range: [40, 47] },
+      { label: "PINK", range: [48, 55] },
+      { label: "WHITE", range: [56, 63] },
+      { label: "RGB", range: [64, 95] },
+      { label: "YCP", range: [96, 127] },
+      { label: "RGBYCPW", range: [128, 159] },
+      { label: "7 COLOR", range: [160, 191] },
+      { label: "SINE", range: [192, 223] },
+      { label: "COSINE", range: [224, 255] },
+    ],
   },
   {
     ch: 30,
@@ -385,6 +449,12 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "ORIGINAL", range: [0, 63] },
+      { label: "NO DOTS", range: [64, 127] },
+      { label: "SWEEP", range: [128, 159] },
+      { label: "SAVE", range: [160, 255] },
+    ],
   },
   {
     ch: 31,
@@ -401,6 +471,14 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "SINE", range: [0, 63] },
+      { label: "COSINE", range: [64, 127] },
+      { label: "DYN A", range: [128, 159] },
+      { label: "DYN B", range: [160, 191] },
+      { label: "DYN C", range: [192, 223] },
+      { label: "DYN D", range: [224, 255] },
+    ],
   },
   {
     ch: 33,
@@ -417,6 +495,21 @@ export const CHANNELS: ChannelDef[] = [
     min: 0,
     max: 255,
     group: "groupB",
+    presets: [
+      { label: "GROUP 1", range: [0, 19] },
+      { label: "GROUP 2", range: [20, 39] },
+      { label: "GROUP 3", range: [40, 59] },
+      { label: "GROUP 4", range: [60, 79] },
+      { label: "GROUP 5", range: [80, 99] },
+      { label: "GROUP 6", range: [100, 119] },
+      { label: "GROUP 7", range: [120, 139] },
+      { label: "GROUP 8", range: [140, 159] },
+      { label: "GROUP 9", range: [160, 179] },
+      { label: "GROUP 10", range: [180, 199] },
+      { label: "GROUP 11", range: [200, 219] },
+      { label: "GROUP 12", range: [220, 239] },
+      { label: "GROUP 13", range: [240, 255] },
+    ],
   },
 ];
 

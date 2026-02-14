@@ -28,18 +28,14 @@ type SceneSource = "playlist" | "generate";
 
 const POOL_OPTIONS: { label: string; value: PatternPool }[] = [
   { label: "All", value: "all" },
-  { label: "Geometry", value: "geometry" },
-  { label: "Stars", value: "stars" },
-  { label: "Waves", value: "waves" },
-  { label: "Concentric", value: "concentric" },
-  { label: "Dots", value: "dots" },
-  { label: "Compound", value: "compound" },
-  { label: "Novelty", value: "novelty" },
+  { label: "Beams 0-84", value: "beams-low" },
+  { label: "Beams 85-169", value: "beams-mid" },
+  { label: "Beams 170-255", value: "beams-high" },
   { label: "Animations", value: "animations" },
 ];
 
 const LOCKABLE_CHANNELS = [
-  { key: "patternSize", label: "Size" },
+  { key: "boundary", label: "Boundary" },
   { key: "zoom", label: "Zoom" },
   { key: "rotation", label: "Rotation" },
   { key: "xMove", label: "Pan X" },
@@ -224,6 +220,10 @@ export default function ShowMode({
     "pattern", "groupSelect", "laserOnOff",
     "zoom", "rotation", "dots", "drawing2",
     "xMove", "yMove", "xZoom", "yZoom",
+    "boundary",     // CH2: interpolating across CROSS/REENTRY/BLANK causes glitches
+    "grating",      // CH17: interpolating between grating groups flashes patterns
+    "colorChange",  // CH12: interpolating from static color to cycling sweeps modes
+    "fixedColor",   // CH11: interpolating causes gradual color-per-dot change
   ]);
 
   // Apply scene with optional crossfade

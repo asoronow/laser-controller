@@ -8,15 +8,12 @@
 
 import type { Scene } from "./scenes";
 
+// Pattern pools use numeric ranges only — the manual provides no pattern names
 export type PatternPool =
   | "all"
-  | "geometry"
-  | "stars"
-  | "waves"
-  | "concentric"
-  | "dots"
-  | "compound"
-  | "novelty"
+  | "beams-low"
+  | "beams-mid"
+  | "beams-high"
   | "animations";
 
 export type ColorMode = "warm" | "cool" | "cycling" | "any";
@@ -44,17 +41,13 @@ interface PatternRange {
 }
 
 const PATTERN_POOLS: Record<PatternPool, PatternRange[]> = {
-  geometry: [{ groupSelect: 0, min: 0, max: 19 }],
-  stars: [{ groupSelect: 0, min: 20, max: 39 }],
-  waves: [{ groupSelect: 0, min: 40, max: 59 }],
-  concentric: [{ groupSelect: 0, min: 60, max: 79 }],
-  dots: [{ groupSelect: 0, min: 80, max: 99 }],
-  compound: [{ groupSelect: 0, min: 100, max: 119 }],
-  novelty: [{ groupSelect: 0, min: 120, max: 139 }],
-  animations: [{ groupSelect: 250, min: 0, max: 50 }],
+  "beams-low": [{ groupSelect: 0, min: 0, max: 84 }],
+  "beams-mid": [{ groupSelect: 0, min: 85, max: 169 }],
+  "beams-high": [{ groupSelect: 0, min: 170, max: 255 }],
+  animations: [{ groupSelect: 250, min: 0, max: 255 }],
   all: [
-    { groupSelect: 0, min: 0, max: 139 },
-    { groupSelect: 250, min: 0, max: 50 },
+    { groupSelect: 0, min: 0, max: 255 },
+    { groupSelect: 250, min: 0, max: 255 },
   ],
 };
 
@@ -196,9 +189,9 @@ export function generateRandomScene(config: FuzzConfig): Scene {
     values.dots = 128 + randInt(0, 31); // SWEEP mode
   }
 
-  // Pattern size — stay in CROSS range (0-49); >=50 enters REENTRY/BLANK
+  // Boundary — stay in CROSS range (0-49); >=50 enters REENTRY/BLANK
   if (Math.random() < 0.3) {
-    values.patternSize = randInt(10, 49);
+    values.boundary = randInt(10, 49);
   }
 
   fuzzCounter++;

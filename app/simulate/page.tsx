@@ -24,7 +24,7 @@ function defaultChannels(): Record<string, number> {
   vals.laserOnOff = 100;
   vals.groupSelect = 0;
   vals.zoom = 64;
-  vals.patternSize = 30; // CROSS mode, visible size
+  vals.boundary = 30; // CROSS mode, visible size
   return vals;
 }
 
@@ -103,7 +103,7 @@ export default function SimulatePage() {
       next.laserOnOff = 100;
       next.groupSelect = 0;
       next.zoom = 64;
-      next.patternSize = 30; // CROSS mode, visible size
+      next.boundary = 30; // CROSS mode, visible size
       for (const [k, v] of Object.entries(scene.values)) {
         next[k] = v;
       }

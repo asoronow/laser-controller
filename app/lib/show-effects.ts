@@ -28,7 +28,7 @@ export interface AudioState {
 }
 
 export interface EffectOverrides {
-  patternSize?: number;
+  boundary?: number;
   zoom?: number;
   rotation?: number;
   xMove?: number;
@@ -244,7 +244,7 @@ export function computeEffects(
   // ── BREAKDOWN: gentle ambient during sustained energy void ──
   if (isBreakdown) {
     overrides.zoom = 80; // static, medium
-    overrides.patternSize = 30; // guarantee visible pattern size
+    overrides.boundary = 30; // CROSS mode, visible boundary
     // Slow drift within 2 CIRC mode (128-159)
     overrides.rotation =
       128 + Math.round(Math.abs(Math.sin(phase1 * 0.3)) * 31);
@@ -255,12 +255,12 @@ export function computeEffects(
     return overrides;
   }
 
-  // ── Pattern Size (CH2): scales visual footprint with energy ──
+  // ── Boundary (CH2): out-of-bounds mode, clamped to CROSS range ──
   // Clamped to 0-49 (CROSS range) — values >=50 enter REENTRY/BLANK modes
   if (punch > 0.3) {
-    overrides.patternSize = Math.round(punch * 49); // 0-49
+    overrides.boundary = Math.round(punch * 49); // 0-49
   } else {
-    overrides.patternSize = Math.round((0.3 + mom * 0.7) * 49); // 15-49
+    overrides.boundary = Math.round((0.3 + mom * 0.7) * 49); // 15-49
   }
 
   // ── Zoom (CH5): always responds to momentum, punchy snaps on beats ──
@@ -284,7 +284,7 @@ export function computeEffects(
   const rotSpeed = Math.max(baseRotSpeed, punchRotSpeed) * 31;
   overrides.rotation = rotBase + Math.round(Math.min(rotSpeed, 31));
 
-  // ── X Movement / Pan (CH7): style + momentum-scaled ──
+  // ── X Moving (CH7): style + momentum-scaled ──
   const moveAmp = (0.2 + mom * 0.8) * intensity;
   if (style === "pulse") {
     const moveSnap = Math.min(punch * 50 * intensity, 31); // clamp to mode width
@@ -305,7 +305,7 @@ export function computeEffects(
     overrides.xMove = 128 + Math.round(chaos * 60 * moveAmp);
   }
 
-  // ── Y Movement / Tilt (CH8): offset from X for circular/lissajous paths ──
+  // ── Y Moving (CH8): offset from X for figure-8 / circular paths ──
   if (style === "pulse") {
     const moveSnap = Math.min(punch * 50 * intensity, 31); // clamp to mode width
     if (moveSnap > 5) {
